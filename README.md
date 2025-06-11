@@ -2,6 +2,10 @@
 
 This repository contains a test task to demonstrate your ability to optimize code.
 
+## Level 0
+
+- Tell the interviewer what this code does.
+
 ## Task Instructions
 
 - **Goal:** Optimize the project code for maximum performance.
