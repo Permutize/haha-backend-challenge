@@ -25,7 +25,7 @@ This repository contains a test task to demonstrate your ability to optimize cod
 
 ## Results
 
-- The maximum result achieved should be **screenshoted** and saved as `target.png` in the project root.  
+- The maximum result achieved can be found in the target.png file.
 
 ![Target Result](./target.png)
 
