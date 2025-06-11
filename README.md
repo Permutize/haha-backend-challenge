@@ -22,6 +22,9 @@ This repository contains a test task to demonstrate your ability to optimize cod
   ```bash
   npm run start:dev
   ```
+
+You have to keep the server running for the stress test.
+
 - **Run Stress Test:**  
   ```bash
   npm run stress
