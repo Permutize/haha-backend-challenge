@@ -20,7 +20,7 @@ This repository contains a test task to demonstrate your ability to optimize cod
 
 - **Start Development Server:**  
   ```bash
-  npm run dev
+  npm run start:dev
   ```
 - **Run Stress Test:**  
   ```bash
