@@ -17,4 +17,9 @@ export class AppService {
 
       return `Visit recorded. Total visits: ${count}`;
     }
+
+    async getValueFromDB(): Promise<string> {
+      const value = await this.dbService.read('visit');
+      return `Value from DB: ${value}`;
+    }
 }

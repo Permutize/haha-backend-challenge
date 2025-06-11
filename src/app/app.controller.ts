@@ -9,4 +9,9 @@ export class AppController {
   trackVisits() {
     return this.appService.trackVisits();
   }
+
+  @Get('db')
+  getValueFromDB() {
+    return this.appService.getValueFromDB();
+  }
 }
