@@ -1,8 +1,8 @@
-# Nest Test Project
+# Backend Challenge Test
 
 This repository contains a test task to demonstrate your ability to optimize code.
 
-## Level 0
+## Task 0
 
 - Tell the interviewer what this code does.
 
