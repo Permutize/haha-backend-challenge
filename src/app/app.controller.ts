@@ -10,10 +10,4 @@ export class AppController {
   trackVisits() {
     return this.appService.trackVisits();
   }
-
-  /** Endpoint to get the value from the database. Just for testing purposes. */
-  @Get('db')
-  getValueFromDB() {
-    return this.appService.getValueFromDB();
-  }
 }

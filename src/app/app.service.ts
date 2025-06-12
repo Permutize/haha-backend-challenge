@@ -11,15 +11,20 @@ export class AppService {
       private readonly queueService: QueueService,
     ) {}
 
+    // Record visit in DB
     async trackVisits(): Promise<string> {
-      // Record visit in DB
-      const count = await this.dbService.inc('visit', true);
+      const key = 'visit';
 
-      return `Visit recorded. Total visits: ${count}`;
-    }
+      // Read current value from DB
+      let value = await this.dbService.read(key);
 
-    async getValueFromDB(): Promise<string> {
-      const value = await this.dbService.read('visit');
-      return `Value from DB: ${value}`;
+      // Increment value in DB
+      value = (value || 0) + 1;
+
+      // Write new value to DB
+      await this.dbService.write(key, value);
+
+      // Show current value to user
+      return `Visit recorded. Total visits: ${value}`;
     }
 }
