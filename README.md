@@ -20,7 +20,7 @@ This repository contains a test task to demonstrate your ability to optimize cod
 ## Before you start
 - **Make sure that all unit tests are green:**  
   ```bash
-  npm run test:cov
+  npm run test
   ```
 
 ## Running the Project
