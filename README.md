@@ -16,6 +16,13 @@ This repository contains a test task to demonstrate your ability to optimize cod
 - **Resources:**  
   - You may use any sources or references to achieve the target.
 
+
+## Before you start
+- **Make sure that all unit tests are green:**  
+  ```bash
+  npm run test
+  ```
+
 ## Running the Project
 
 - **Start Development Server:**  

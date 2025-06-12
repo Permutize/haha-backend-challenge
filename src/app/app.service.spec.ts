@@ -9,41 +9,44 @@ jest.mock('../system/queue/queue.service');
 
 describe('AppService', () => {
   let appService: AppService;
-  let cacheService: jest.Mocked<CacheService>;
   let dbService: jest.Mocked<DbService>;
-  let queueService: jest.Mocked<QueueService>;
 
   beforeEach(() => {
-    cacheService = new CacheService() as jest.Mocked<CacheService>;
     dbService = new DbService() as jest.Mocked<DbService>;
-    queueService = new QueueService() as jest.Mocked<QueueService>;
-    appService = new AppService(cacheService, dbService, queueService);
+    dbService.read = jest.fn();
+    dbService.write = jest.fn().mockResolvedValue(undefined);
+
+    appService = new AppService(
+      new CacheService() as any,
+      dbService,
+      new QueueService() as any,
+    );
   });
 
-  describe('trackVisits', () => {
-    it('should increment visit count in db and return message', async () => {
-      dbService.inc = jest.fn().mockResolvedValue(5);
+  it('should increment visits when no previous value exists', async () => {
+    dbService.read.mockResolvedValueOnce(undefined);
 
-      const result = await appService.trackVisits();
+    const result = await appService.trackVisits();
 
-      expect(dbService.inc).toHaveBeenCalledWith('visit', true);
-      expect(result).toBe('Visit recorded. Total visits: 5');
-    });
+    expect(dbService.read).toHaveBeenCalledWith('visit');
+    expect(dbService.write).toHaveBeenCalledWith('visit', 1);
+    expect(result).toBe('Visit recorded. Total visits: 1');
+  });
 
-    it('should handle dbService.inc returning 0', async () => {
-      dbService.inc = jest.fn().mockResolvedValue(0);
+  it('should increment visits when previous value exists', async () => {
+    dbService.read.mockResolvedValueOnce(5);
 
-      const result = await appService.trackVisits();
+    const result = await appService.trackVisits();
 
-      expect(dbService.inc).toHaveBeenCalledWith('visit', true);
-      expect(result).toBe('Visit recorded. Total visits: 0');
-    });
+    expect(dbService.read).toHaveBeenCalledWith('visit');
+    expect(dbService.write).toHaveBeenCalledWith('visit', 6);
+    expect(result).toBe('Visit recorded. Total visits: 6');
+  });
 
-    it('should propagate errors from dbService.inc', async () => {
-      dbService.inc = jest.fn().mockRejectedValue(new Error('DB error'));
+  it('should propagate dbService.write errors', async () => {
+    dbService.read.mockResolvedValueOnce(2);
+    dbService.write.mockRejectedValueOnce(new Error('DB error'));
 
-      await expect(appService.trackVisits()).rejects.toThrow('DB error');
-      expect(dbService.inc).toHaveBeenCalledWith('visit', true);
-    });
+    await expect(appService.trackVisits()).rejects.toThrow('DB error');
   });
 });
