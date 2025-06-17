@@ -10,52 +10,43 @@ jest.mock('../system/queue/queue.service');
 describe('AppService', () => {
   let appService: AppService;
   let dbService: jest.Mocked<DbService>;
-  let cacheService: jest.Mocked<CacheService>;
-  let queueService: jest.Mocked<QueueService>;
 
   beforeEach(() => {
     dbService = new DbService() as jest.Mocked<DbService>;
     dbService.read = jest.fn();
     dbService.write = jest.fn().mockResolvedValue(undefined);
 
-    cacheService = new CacheService() as jest.Mocked<CacheService>;
-    cacheService.get = jest.fn();
-    cacheService.set = jest.fn();
-
-    queueService = new QueueService() as jest.Mocked<QueueService>;
-    queueService.add = jest.fn();
-
     appService = new AppService(
-      cacheService,
+      new CacheService() as any,
       dbService,
-      queueService,
+      new QueueService() as any,
     );
   });
 
   it('should increment visits when no previous value exists', async () => {
-    cacheService.get.mockResolvedValueOnce(undefined);
-    
+    dbService.read.mockResolvedValueOnce(undefined);
+
     const result = await appService.trackVisits();
 
-    expect(cacheService.get).toHaveBeenCalledWith('visit');
-    expect(cacheService.set).toHaveBeenCalledWith('visit', 1);
+    expect(dbService.read).toHaveBeenCalledWith('visit');
+    expect(dbService.write).toHaveBeenCalledWith('visit', 1);
     expect(result).toBe('Visit recorded. Total visits: 1');
   });
 
   it('should increment visits when previous value exists', async () => {
-    cacheService.get.mockResolvedValueOnce(5);
+    dbService.read.mockResolvedValueOnce(5);
 
     const result = await appService.trackVisits();
 
-    expect(cacheService.get).toHaveBeenCalledWith('visit');
-    expect(cacheService.set).toHaveBeenCalledWith('visit', 6);
+    expect(dbService.read).toHaveBeenCalledWith('visit');
+    expect(dbService.write).toHaveBeenCalledWith('visit', 6);
     expect(result).toBe('Visit recorded. Total visits: 6');
   });
 
-  it('should propagate cacheService.set errors', async () => {
-    cacheService.get.mockResolvedValueOnce(2);
-    cacheService.set.mockRejectedValueOnce(new Error('Cache error'));
+  it('should propagate dbService.write errors', async () => {
+    dbService.read.mockResolvedValueOnce(2);
+    dbService.write.mockRejectedValueOnce(new Error('DB error'));
 
-    await expect(appService.trackVisits()).rejects.toThrow('Cache error');
+    await expect(appService.trackVisits()).rejects.toThrow('DB error');
   });
 });
