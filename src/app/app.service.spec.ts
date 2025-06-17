@@ -10,11 +10,15 @@ jest.mock('../system/queue/queue.service');
 describe('AppService', () => {
   let appService: AppService;
   let dbService: jest.Mocked<DbService>;
+  let cacheService: jest.Mocked<CacheService>;
 
   beforeEach(() => {
     dbService = new DbService() as jest.Mocked<DbService>;
     dbService.read = jest.fn();
     dbService.write = jest.fn().mockResolvedValue(undefined);
+    cacheService = new CacheService() as jest.Mocked<CacheService>;
+    cacheService.get = jest.fn();
+    cacheService.set = jest.fn();
 
     appService = new AppService(
       new CacheService() as any,
@@ -38,7 +42,9 @@ describe('AppService', () => {
 
     const result = await appService.trackVisits();
 
-    expect(dbService.read).toHaveBeenCalledWith('visit');
+    // expect(dbService.read).toHaveBeenCalledWith('visit');
+    expect(cacheService.get).toHaveBeenCalledWith('visit', 5);
+    expect(cacheService.set).toHaveBeenCalledWith('visit', 6);
     expect(dbService.write).toHaveBeenCalledWith('visit', 6);
     expect(result).toBe('Visit recorded. Total visits: 6');
   });

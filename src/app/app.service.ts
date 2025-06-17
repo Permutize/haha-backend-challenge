@@ -16,15 +16,26 @@ export class AppService {
       const key = 'visit';
 
       // Read current value from DB
-      let value = await this.dbService.read(key);
-
-      // Increment value in DB
-      value = (value || 0) + 1;
+      let cacheValue = await this.cacheManager.get(key);
+      if (cacheValue) {
+        cacheValue = cacheValue + 1;
+        await this.cacheManager.set(key, cacheValue);
+        this.queueService.add(`visi_updated_${cacheValue}`, () => this.dbService.write(key, cacheValue));
+        return `Visit recorded. Total visits: ${cacheValue}`;
+      } else {
+        let value = await this.dbService.read(key);
+        value = (value || 0 ) + 1;
+        // Increment value in DB
+        await this.cacheManager.set(key, value);
+        this.queueService.add(`visi_updated_${value}`, () => this.dbService.write(key, 1));
+        return `Visit recorded. Total visits: ${value}`;
+      }
+      
 
       // Write new value to DB
-      await this.dbService.write(key, value);
+      // await this.dbService.write(key, value);
+      // this.queueService.add(`visi_updated_${value}`, () => this.dbService.inc(key))
 
       // Show current value to user
-      return `Visit recorded. Total visits: ${value}`;
     }
 }
